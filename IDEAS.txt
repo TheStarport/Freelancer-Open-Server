@@ -1,0 +1,1 @@
+- Add RSS scanner and ID registry, so players would be notified about comm posts to them\their faction.

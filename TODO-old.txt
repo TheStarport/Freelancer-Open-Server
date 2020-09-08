@@ -1,0 +1,92 @@
+FL Open Server Backlog
+
+ARCHITECTURE
+- Fix parsing of dependent elements so that there is no ordering dependency (ie. Gun blocks need Munition blocks, but the dependency fails if the Munition block is defined after the Gun block)
+- Make sure Solars register first to avoid objid collisions with other SimObjects
+- Not use the third part of the version number, seems to never be compatible if non-zero? x.x.??.x
+- Add finer grained gui debugging.
+- Modify DSAM/DSPM to manage and monitor server remotely.
+- Public anticheat and client dlls. - Possibly should be done in C++ due to easy decompilation
+- Plugin support?
+- Move from ReactorEvents to C# event call functions for better performance
+- Treat every update as async call and return results after ^
+- Enable Jitter Physics to control collisions and zone presence
+
+CRITICAL FUNCTIONALITY
+- Way to measure load/lag per game thread and for all players
+- Check that gun is mounted when accepting fireweapons events
+- Damage on missile hit.
+- Splash damage on mine/missile hit, with or without falloff
+- Rocket muzzle?
+- Support for multiple shield generators
+- Support for multiple thrusters
+- Damage in zone with less frequent updates
+- Reputation management?
+- Mines.
+- Trade window
+- Scan
+- Radar
+- Tractor
+- Tradelane disruption
+- Docking denied on reputation (jumpgate, tradelane behavior?)
+- Ambient NPC spawns
+- Patrol paths
+- NPC chatter
+- Missions
+- Rumors in base
+
+ADDITIONAL FUNCTIONALITY
+- Add dock chatter
+- Distinguish dock responses (denied for too big vs reputation, etc.)
+- Add dock queue management and change dock point selection to avoid putting two ships on the same point
+- Danger/combat/death music
+- Login/Logoff/Death messages
+- Add a separate list for damaging/interfering zones to shorten loops
+
+ADMINISTRATION
+- .teleport/
+- .setcash
+- .setrep
+- .kick
+- .ban
+- .kill
+- .hold
+- .damage
+- .butcher
+- .pull
+- .chase
+- .msgX (universe, system, etc.)
+
+PLAYER FEATURES
+
+
+Done
++ Move charfiles into sqlite and support "import/export" for compatiblity only. Retain file format structure as a BLOB in the sqlite charfile record to make it easy to import/export.
++ /ping
++ Damage on gun hit.
++ Damage in zone.
++ Fix docking/launch point rotations/transforms and retest base/jump-in spawning.
++ Make guns not spawn simobjects, make only missiles spawn simobjects.
++ Missiles with non-seeking AI.
++ Missiles with seeking AI.
++ Read server GUID from flserver.cfg file.
++ Split DPServer into DPStarSystem and thread the lot
++ Fix docking/launch point rotations/transforms and retest base/jump-in spawning.
++ Make guns not spawn simobjects, make only missiles spawn simobjects.
++ Missiles with non-seeking AI.
++ Missiles with seeking AI.
++ Get best path
++ .move [admin command only]
++ .addcash
++ .getcash
++ .beam
++ Nanobots.
++ Shieldbats.
++ Damage on gun hit.
++ Damage in zone.
++ Repair support
++ Setting reputation of solars on spawn does not appear to be working.
++ Countermeasures.
++ Join/invite/leave group
++ News in base
++ Add log to file options

@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="cf32e069-0516-406a-8053-bc56c295c1f8" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="538585c3-c049-497d-973a-74d8185f7c88" name="DirectPlayServer (Directplay Implementation)">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="2d8d7da6-9666-4bc2-aecc-8a754b8c08ce" direction="Forward">
+          <layerMoniker Id="6b0d41cd-b4df-4870-9b62-8e20ac4e1ac1" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <childLayers>
+        <layer Id="909b08c5-e892-4bb0-8c1d-7740b7f3c8e5" name="Session (per Client)" />
+      </childLayers>
+    </layer>
+    <layer Id="6b0d41cd-b4df-4870-9b62-8e20ac4e1ac1" name="Socket/UDP (Network)" />
+    <layer Id="8077103e-36ee-4526-85a7-769f231cc341" name="DPServer (Main Loop)">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="1aa6094e-770e-4e83-9ddb-354164deca4c" direction="Forward">
+          <layerMoniker Id="538585c3-c049-497d-973a-74d8185f7c88" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="e7f99f6f-f717-4b0d-a882-deff50641dbd" direction="Forward">
+          <layerMoniker Id="00cb9bb1-2b94-465a-b95d-df4b05a1bd6c" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <childLayers>
+        <layer Id="5334b305-883e-4fe4-ade8-323f13756648" name="Client Low Level Communication">
+          <dependencyToLayers>
+            <dependencyFromLayerToLayer Id="8408eb53-3026-4f85-88ce-273ec2be2370" direction="Forward">
+              <layerMoniker Id="11452c95-7d22-49ef-9f1d-0dad508c825d" />
+            </dependencyFromLayerToLayer>
+            <dependencyFromLayerToLayer Id="64a5f9dc-d746-4fe7-a083-825585ba0e22" direction="Forward">
+              <layerMoniker Id="909b08c5-e892-4bb0-8c1d-7740b7f3c8e5" />
+            </dependencyFromLayerToLayer>
+          </dependencyToLayers>
+          <childLayers>
+            <layer Id="c69cfff4-8017-4fe3-b52a-76013ee447bb" name="Connect / Disconnect / Player Change">
+              <dependencyToLayers>
+                <dependencyFromLayerToLayer Id="e3014720-aa5b-4659-944f-53964c54964d" direction="Forward">
+                  <layerMoniker Id="e8a6023c-13ed-44da-955d-4a2556f5d457" />
+                </dependencyFromLayerToLayer>
+              </dependencyToLayers>
+            </layer>
+          </childLayers>
+        </layer>
+      </childLayers>
+    </layer>
+    <layer Id="00cb9bb1-2b94-465a-b95d-df4b05a1bd6c" name="DPGameRunner (per Star System)">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="67bdc530-6990-4eb7-8dd5-a2ea15a55d4a" direction="Bidirectional">
+          <layerMoniker Id="11452c95-7d22-49ef-9f1d-0dad508c825d" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="b1f72c46-0c6e-4f74-b926-7c56ed4dd60a" direction="Forward">
+          <layerMoniker Id="5334b305-883e-4fe4-ade8-323f13756648" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="61343201-5473-4760-a475-7f2ceac66c80" direction="Bidirectional">
+          <layerMoniker Id="e8a6023c-13ed-44da-955d-4a2556f5d457" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <childLayers>
+        <layer Id="3bd3f0ad-a021-4944-84e1-dba262248b5d" name="FL Data">
+          <childLayers>
+            <layer Id="e709527a-8394-4a58-85ca-2ce34901b422" name="Market" />
+            <layer Id="c9763fac-a817-4073-ab73-df6b871930cd" name="Universe" />
+            <layer Id="df60d43b-011d-4941-8014-ebf8060899c7" name="Equipment" />
+            <layer Id="bb1d54f2-0cfe-490e-9062-0ba4193be24d" name="Ships" />
+            <layer Id="33b6e636-9199-4ab4-916d-973e33c27f77" name="etc.." />
+          </childLayers>
+        </layer>
+        <layer Id="c1e9a74e-e6b0-4273-9499-6e2273c3afa7" name="SimObjects (Dynamic)" />
+        <layer Id="a736d2d0-b598-47d8-8b58-0a9c4056b107" name="Players" />
+      </childLayers>
+    </layer>
+    <layer Id="55e482ef-677c-4b2f-b40c-c60fe75b33e8" name="Reactor (Thread Synchronization)">
+      <childLayers>
+        <layer Id="11452c95-7d22-49ef-9f1d-0dad508c825d" name="EventQueue" />
+      </childLayers>
+    </layer>
+    <layer Id="e8a6023c-13ed-44da-955d-4a2556f5d457" name="Player (per Client) [DPPlayer]">
+      <childLayers>
+        <layer Id="8e742494-ffb1-4d8e-9fe6-b25c4845edc6" name="CharacterData">
+          <childLayers>
+            <layer Id="874e1083-c617-41eb-9a42-c8857669f3ec" name="I/O Character Data">
+              <dependencyToLayers>
+                <dependencyFromLayerToLayer Id="55715324-cb9e-44eb-9d51-a910da1a0be2" direction="Forward">
+                  <layerMoniker Id="76af699d-8a33-47d3-bfea-561f38a08122" />
+                </dependencyFromLayerToLayer>
+              </dependencyToLayers>
+            </layer>
+          </childLayers>
+        </layer>
+        <layer Id="ce932eba-c951-4856-945e-d78b8a3c50ba" name="PlayerState">
+          <childLayers>
+            <layer Id="8e27ca4e-b5cb-4d5a-add4-76d14dcf602c" name="Client Message Handling [DPInBaseStates]" />
+          </childLayers>
+        </layer>
+      </childLayers>
+    </layer>
+    <layer Id="76af699d-8a33-47d3-bfea-561f38a08122" name="FL Charfile I/O (File System)" />
+  </layers>
+</layerModel>

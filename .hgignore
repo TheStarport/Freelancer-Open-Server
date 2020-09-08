@@ -1,0 +1,13 @@
+syntax: glob
+FOS-ng/obj
+src/obj
+FLDataFile/obj
+FLDataFile/bin
+FOS-ng
+FLDataFile/signature.pfx
+src_plug/
+FOS-ng-Model/
+src/bin/
+physics/Jitter/obj
+physics/Jitter/bin
+FLOpenServer.*.suo

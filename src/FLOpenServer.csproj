@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1356594E-BCBA-4122-855A-69799C5588C4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FLServer</RootNamespace>
+    <AssemblyName>FLServer</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Akka, Version=0.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Akka.0.6.3\lib\net45\Akka.dll</HintPath>
+    </Reference>
+    <Reference Include="Akka.NLog, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Akka.NLog.0.6.3\lib\net45\Akka.NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Akka.Remote, Version=0.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Akka.Remote.0.6.3\lib\net45\Akka.Remote.dll</HintPath>
+    </Reference>
+    <Reference Include="Helios, Version=1.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Helios.1.3.5.0\lib\net45\Helios.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.93.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Ionic.Zlib">
+      <HintPath>Ionic.Zlib.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.93.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.93.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers.Serialization">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System" />
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Actors\Globals.cs" />
+    <Compile Include="Actors\Init.cs" />
+    <Compile Include="Actors\Player\Chat\Chat.cs" />
+    <Compile Include="Actors\Player\Chat\ChatMessage.cs" />
+    <Compile Include="Actors\Player\PlayerMessage.cs" />
+    <Compile Include="Actors\Player\Player.cs" />
+    <Compile Include="Actors\Player\PlayerList\PListMessage.cs" />
+    <Compile Include="Actors\Player\PlayerList\PlayerListHandler.cs" />
+    <Compile Include="Actors\Session\Congestion\Congestion.cs" />
+    <Compile Include="Actors\Session\Congestion\CongMessage.cs" />
+    <Compile Include="Actors\Session\DPlaySession\DPMessage.cs" />
+    <Compile Include="Actors\Session\Session.cs" />
+    <Compile Include="Actors\Session\DPlaySession\DPlaySession.cs" />
+    <Compile Include="Actors\Session\SessionMessage.cs" />
+    <Compile Include="Actors\Player\Ship\ShipMessage.cs" />
+    <Compile Include="Actors\Player\Ship\Ship.cs" />
+    <Compile Include="Actors\Player\State\Base\BaseState.cs" />
+    <Compile Include="Actors\Player\State\Base\BaseStateMessage.cs" />
+    <Compile Include="Actors\Player\State\InBaseState.cs" />
+    <Compile Include="Actors\Player\State\LoginState.cs" />
+    <Compile Include="Actors\Player\State\StateMessage.cs" />
+    <Compile Include="Actors\ServerUtils.cs" />
+    <Compile Include="Actors\Server\ServerMessage.cs" />
+    <Compile Include="Actors\Server\Server.cs" />
+    <Compile Include="Actors\System\UDPSock.cs" />
+    <Compile Include="CharDB\Account.cs" />
+    <Compile Include="CharDB\AccountStruct.cs" />
+    <Compile Include="CharDB\Database.cs" />
+    <Compile Include="CharDB\Importer.cs" />
+    <Compile Include="GameDB\ArchetypeDB.cs" />
+    <Compile Include="GameDB\Arch\Archetype.cs" />
+    <Compile Include="GameDB\Arch\EquipmentArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\ArmorArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\ExternalEquipmentArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\LauncherArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\Launcher\CMDropperArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\Launcher\GunArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\Launcher\MineDropperArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\ShieldGeneratorArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\External\ThrusterArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\PowerArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\ProjectileArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\Projectile\CountermeasureArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\Projectile\MineArchetype.cs" />
+    <Compile Include="GameDB\Arch\Equipment\Projectile\MunitionArchetype.cs" />
+    <Compile Include="GameDB\Arch\MotorArchetype.cs" />
+    <Compile Include="GameDB\Arch\ShipArchetype.cs" />
+    <Compile Include="GameDB\Arch\Weapon\WeaponType.cs" />
+    <Compile Include="GameDB\Base\Base.cs" />
+    <Compile Include="GameDB\BaseDB.cs" />
+    <Compile Include="GameDB\Base\Character.cs" />
+    <Compile Include="GameDB\Base\CharBribe.cs" />
+    <Compile Include="GameDB\Generic\Faction.cs" />
+    <Compile Include="GameDB\UniverseDB.cs" />
+    <Compile Include="Objects\SimObject\SimObject.cs" />
+    <Compile Include="Objects\SimObject\SimObjMessages.cs" />
+    <Compile Include="Old\buf\Action.cs" />
+    <Compile Include="AI\AI.cs" />
+    <Compile Include="AI\DebugAI.cs" />
+    <Compile Include="AI\ShipAI.cs" />
+    <Compile Include="AI\SolarAI.cs" />
+    <Compile Include="AppDomain\CustomContext.cs" />
+    <Compile Include="Old\HardpointData.cs" />
+    <Compile Include="Old\Object\Base\BaseCharacter.cs" />
+    <Compile Include="Old\CharacterDB\AccountStruct.cs" />
+    <Compile Include="Old\CharacterDB\CharacterData.cs" />
+    <Compile Include="Old\CharacterDB\Database.cs" />
+    <Compile Include="Old\CharacterDB\Importer.cs" />
+    <Compile Include="ArchetypeDB.cs" />
+    <Compile Include="Old\Chat\Chat.cs" />
+    <Compile Include="Old\Chat\Rdl.cs" />
+    <Compile Include="Old\buf\CmpFixData.cs" />
+    <Compile Include="Old\buf\CmpPrisData.cs" />
+    <Compile Include="Old\buf\CmpRevData.cs" />
+    <Compile Include="Old\buf\CmpSphereData.cs" />
+    <Compile Include="Old\Munition\CounterMeasure.cs" />
+    <Compile Include="Old\Player\Packets.cs" />
+    <Compile Include="Old\Server\DirectPlay.cs" />
+    <Compile Include="Old\buf\DPConnectingStates.cs" />
+    <Compile Include="Old\buf\DPInBaseStates.cs" />
+    <Compile Include="Old\Player\DPPlayer.cs" />
+    <Compile Include="Old\Server\DPGameRunner.cs" />
+    <Compile Include="Old\buf\FLFormatString.cs" />
+    <Compile Include="Old\Server\DPServer.cs" />
+    <Compile Include="Old\buf\ControlWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Old\buf\ControlWindow.Designer.cs">
+      <DependentUpon>ControlWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Old\buf\FLDataFile.cs" />
+    <Compile Include="Old\buf\FLDataFileException.cs" />
+    <Compile Include="Old\Chat\FLMsgDecoder.cs" />
+    <Compile Include="Old\buf\FLMsgType.cs" />
+    <Compile Include="Old\DataWorkers\FLUtility.cs" />
+    <Compile Include="Old\Player\Group.cs" />
+    <Compile Include="Objects\Components\HardpointData.cs" />
+    <Compile Include="Old\Logging\LogController.cs" />
+    <Compile Include="Old\Logging\Logger.cs" />
+    <Compile Include="Old\Object\Loot.cs" />
+    <Compile Include="Old\Object\Base\Market.cs" />
+    <Compile Include="Old\Physics\Matrix.cs" />
+    <Compile Include="Old\Munition\Missile.cs" />
+    <Compile Include="Old\Object\Base\News.cs" />
+    <Compile Include="Old\Physics\OrientedBoundingBox.cs" />
+    <Compile Include="Old\Player\PlayerExtensions\WeaponGroup.cs" />
+    <Compile Include="Old\Player\Session.cs" />
+    <Compile Include="Old\Plugins\IFOSPlugin.cs" />
+    <Compile Include="Old\Plugins\PlugNotValidException.cs" />
+    <Compile Include="AppDomain\Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Old\buf\ControlWindow.resx">
+      <DependentUpon>ControlWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Old\Physics\Quaternion.cs" />
+    <Compile Include="Old\buf\Reputation.cs" />
+    <Compile Include="Old\Object\Ship\DamageListItem.cs" />
+    <Compile Include="Old\Server\UDPListener.cs" />
+    <Compile Include="Old\Simulators\IUpdatable.cs" />
+    <Compile Include="Old\Simulators\PowerSim.cs" />
+    <Compile Include="Old\Simulators\ShieldGeneratorSim.cs" />
+    <Compile Include="Old\Object\Ship\Ship.cs" />
+    <Compile Include="Old\Object\Ship\ShipItem.cs" />
+    <Compile Include="Old\Object\SimObject.cs" />
+    <Compile Include="Old\Object\Base\BaseData.cs" />
+    <Compile Include="Old\Object\Base\Room.cs" />
+    <Compile Include="Old\Object\Solar\Shape.cs" />
+    <Compile Include="Old\Object\Solar\Solar.cs" />
+    <Compile Include="Old\DataWorkers\SurFile.cs" />
+    <Compile Include="Old\DataWorkers\ThnParse.cs" />
+    <Compile Include="Old\Object\Solar\StarSystem.cs" />
+    <Compile Include="Old\Object\Solar\Zone.cs" />
+    <Compile Include="Old\buf\ThreadEventQueue.cs" />
+    <Compile Include="Old\buf\UniverseDB.cs" />
+    <Compile Include="Old\DataWorkers\UTFFile.cs" />
+    <Compile Include="Old\buf\Utilities.cs" />
+    <Compile Include="Old\Utils\Tuple.cs" />
+    <Compile Include="Old\Physics\Vector.cs" />
+    <Compile Include="Old\buf\Waypoint.cs" />
+    <Compile Include="Objects\SimObject\Loot.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Objects\ShipData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="protos\google\protobuf\csharp_options.proto" />
+    <None Include="protos\google\protobuf\descriptor.proto" />
+    <None Include="protos\tutorial\addressbook.proto" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="licenses\license.txt" />
+    <Content Include="licenses\protoc-license.txt" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\FLDataFile\FLDataFile.csproj">
+      <Project>{60F268EE-F1CF-4D5B-9641-B6DB66BC956E}</Project>
+      <Name>FLDataFile</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\physics\Jitter\Jitter.csproj">
+      <Project>{AA03EF1A-94F7-4D30-AB14-2092863FF923}</Project>
+      <Name>Jitter</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

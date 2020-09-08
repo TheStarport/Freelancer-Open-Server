@@ -1,0 +1,12 @@
+# FL Open Server-Akka Backlog
+
+## CRITICAL
+- GUI
+- Basic inspace\inbase actions
+- Zone damage (missile included?)
+- NPC chatter
+- Docking denied on rep\shipclass
+- Fill the TODO when we have working universe
+
+## ARCHITECTURE
+- Enable JitterPhysics to control collisions

@@ -1,0 +1,6 @@
+repo: c130bd868454d9f632206a885db61a5d95493810
+node: 363be2561b45d3e41b357d6edbc5db39a928876f
+branch: akka
+latesttag: null
+latesttagdistance: 60
+changessincelatesttag: 64

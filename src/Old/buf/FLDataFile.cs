@@ -1,0 +1,753 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+/*  The following notes on bin file encoding were written by Christopher Wellons <ccw129@psu.edu>
+    and were taken from http://www.nullprogram.com/projects/bini/
+
+    The bini decode implementaton in the following code is my own (and so is probably buggy!)
+  
+    A BINI file has two segments: a data segment and a string segment, which contains the string table.
+    +------------+
+    |    data    |
+    |------------|
+    |   string   |
+    |    table   |
+    +------------+
+    The string table is an argz vector: a contiguous block of memory with strings separated by
+     null-characters (/0). The data section points to these strings. All values are stored as little endian.
+
+    A BINI file begins with a 12-byte header made up of 3 4-byte segments,
+
+    header {
+      dword "BINI"
+      dword version
+      dword str_table
+    }
+
+    The first 4 bytes identify the file as a BINI file with those exact 4 ASCII letters. The second
+    4 bytes are always equal to the number 1. This is believed to be a version number. The last 4 bytes
+    is the string table offset from the beginning of the file.
+
+    The first 4 bytes after the header is the first section. A section contains two 2-byte values,
+
+    section {
+      word string_offset
+      word number_of_entries
+    }
+
+    The string offset is the offset from the beginning of the string table. This string is the name of
+    that section. The second word is the number of entries in this section. Note that the number of 
+    sections is not listed anywhere, so this information can only be found by iterating though the
+    entire data segment.
+
+    Following this section information is a 3-byte entry,
+
+    entry {
+      word string_offset
+      byte number of values
+    }
+
+    This is data is setup just like sections with the string offset being the name of the entry,
+    and following it is the same number of values as indicated,
+
+    value {
+      byte  type
+      dword data
+    }
+
+    A value is 5 bytes. The first byte describes the type, of which there are three,
+
+         1 - integer
+         2 - float
+         3 - a string table offset
+
+    The data dword is of the indicated type. The next entry after all of the values for this entry,
+    the next entry (if there is one). After the last entry, we may either find ourselves at the string
+    table, meaning that the parsing is complete, or we are at another new section, and we start over again. 
+*/
+using FLServer.DataWorkers;
+using FLServer.Physics;
+
+namespace FLServer
+{
+    public class FLDataFile
+    {
+        /// <summary>
+        ///     The super duper microsoft encryption key
+        /// </summary>
+        private static readonly byte[] Gene = {(byte) 'G', (byte) 'e', (byte) 'n', (byte) 'e'};
+
+        /// <summary>
+        ///     True if no commas are expected for a setting and the whole line should be treated
+        ///     as a single value.
+        /// </summary>
+        private readonly bool _multiFields = true;
+
+        /// <summary>
+        ///     The ini file contents - decrypted if necessary
+        /// </summary>
+        private string _contents;
+
+        /// <summary>
+        ///     The path of the loaded ini file
+        /// </summary>
+        public string FilePath;
+
+        /// <summary>
+        ///     The entries in the ini file
+        /// </summary>
+        public List<Section> Sections = new List<Section>();
+
+        /// <summary>
+        ///     True if the file was encrypted when it was loaded
+        /// </summary>
+        public bool WasEncrypted = false;
+
+        /// <summary>
+        ///     Create an empty Freelancer ini file.
+        /// </summary>
+        /// <param name="multiFields">if true commas delimit fields</param>
+        public FLDataFile(bool multiFields)
+        {
+            _multiFields = multiFields;
+        }
+
+        /// <summary>
+        ///     Open and parse a Freelancer ini file into an setting list.
+        /// </summary>
+        /// <param name="filePath">The file to load.</param>
+        /// <param name="multiFields">if true commas delimit fields</param>
+        public FLDataFile(string filePath, bool multiFields)
+        {
+            _multiFields = multiFields;
+            FilePath = filePath;
+            byte[] buf;
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                buf = new byte[fs.Length];
+                fs.Read(buf, 0, (int) fs.Length);
+                fs.Close();
+            }
+            Parse(buf, Path.GetFileName(filePath));
+        }
+
+        /// <summary>
+        ///     Parse a Freelancer ini file in the specified array
+        /// </summary>
+        /// <param name="buf">The array to parse.</param>
+        /// <param name="fileName">This file is not loaded but retained for diagnostics.</param>
+        /// <param name="multiFields">if true commas delimit fields</param>
+        public FLDataFile(byte[] buf, string fileName, bool multiFields)
+        {
+            FilePath = fileName;
+            _multiFields = multiFields;
+            Parse(buf, fileName);
+        }
+
+        /// <summary>
+        ///     Parse a Freelancer ini file in the specified array
+        /// </summary>
+        /// <param name="buf">The array to parse.</param>
+        /// <param name="fileName"></param>
+        private void Parse(byte[] buf, string fileName)
+        {
+            // If this is an encrypted FL ini file then decypt it 
+            // and overwrite the original buffer.
+            if (buf.Length >= 4 && buf[0] == 'F' && buf[1] == 'L' && buf[2] == 'S' && buf[3] == '1')
+            {
+                var dbuf = new byte[buf.Length - 4];
+                for (int i = 4; i < buf.Length; i++)
+                {
+                    int k = (Gene[i%4] + (i - 4))%256;
+                    dbuf[i - 4] = (byte) (buf[i] ^ (k | 0x80));
+                }
+                buf = dbuf;
+                WasEncrypted = true;
+            }
+
+            var sr = new StreamReader(new MemoryStream(buf));
+            _contents += sr.ReadToEnd();
+            sr.Close();
+
+            // If the file is empty then this is an error
+            if (buf.Length == 0)
+                throw new FLDataFileException("File is empty");
+
+            // If this is a bini file then decode it
+            if (buf.Length >= 12 && buf[0] == 'B' && buf[1] == 'I' && buf[2] == 'N' && buf[3] == 'I')
+            {
+                LoadBinaryIni(buf, fileName);
+            }
+            else
+            {
+                LoadTextIni(buf, fileName);
+            }
+        }
+
+        private void LoadBinaryIni(byte[] buf, string fileName)
+        {
+            int p = 4;
+            int version = BitConverter.ToInt32(buf, p);
+            p += 4;
+            int strTableOffset = BitConverter.ToInt32(buf, p);
+            p += 4;
+
+            while (p < buf.Length && p < strTableOffset)
+            {
+                int sectionStrOffset = BitConverter.ToInt16(buf, p);
+                p += 2;
+                int sectionNumEntries = BitConverter.ToInt16(buf, p);
+                p += 2;
+                string sectionName = BufToString(buf, strTableOffset + sectionStrOffset);
+
+                var section = new Section(fileName) {SectionName = sectionName};
+                Sections.Add(section);
+
+                while (sectionNumEntries-- > 0)
+                {
+                    int entryStrOffset = BitConverter.ToInt16(buf, p);
+                    p += 2;
+                    int entryNumValues = buf[p++];
+
+                    string settingName = BufToString(buf, strTableOffset + entryStrOffset);
+                    string desc = fileName + ":0x" + p.ToString("x") + " '" + settingName + "'";
+                    var values = new object[entryNumValues];
+
+                    for (int currentValue = 0; currentValue < entryNumValues; currentValue++)
+                    {
+                        int valueType = buf[p++];
+                        int value = BitConverter.ToInt32(buf, p);
+                        p += 4;
+                        switch (valueType)
+                        {
+                            case 1: // Integer
+                                values[currentValue] = value;
+                                break;
+                            case 2: // Float
+                                values[currentValue] = BitConverter.ToSingle(buf, p - 4);
+                                break;
+                            case 3: // String
+                                values[currentValue] = BufToString(buf, strTableOffset + value);
+                                break;
+                            default:
+                                throw new FLDataFileException("Unexpected value type at offset=" + (p - 1));
+                        }
+                    }
+
+                    var setting = new Setting(sectionName, settingName, desc, values, "");
+                    section.Settings.Add(setting);
+                }
+            }
+        }
+
+        private string BufToString(byte[] buf, int offset)
+        {
+            // Find the null byte in the str
+            int strLen = 0;
+            // fixme: that's mad bro.
+            for (int i = offset; i < buf.Length && buf[i] != 0; i++, strLen++) ;
+            return Encoding.ASCII.GetString(buf, offset, strLen);
+        }
+
+        private void LoadTextIni(byte[] buf, string fileName)
+        {
+            Section sec = null;
+
+            int lineNumber = 0;
+            var sr = new StreamReader(new MemoryStream(buf));
+            string strLine = sr.ReadLine();
+            lineNumber++;
+            while (strLine != null)
+            {
+                strLine = strLine.Trim();
+
+                if (strLine != "")
+                {
+                    if (strLine.StartsWith("[") && strLine.EndsWith("]"))
+                    {
+                        string sectionName = strLine.Substring(1, strLine.Length - 2);
+                        string desc = fileName + ":" + lineNumber + " '" + strLine + "'";
+                        sec = new Section(desc) {SectionName = sectionName};
+                        Sections.Add(sec);
+                    }
+                    else
+                    {
+                        // Create a dummy section for files with out a [] section.
+                        if (sec == null)
+                        {
+                            sec = new Section(fileName) {SectionName = "ROOT"};
+                            Sections.Add(sec);
+                        }
+
+                        // Strip comments at the end of the line.
+                        int commentStartIdx = strLine.IndexOf(';');
+                        if (commentStartIdx != -1)
+                            strLine = strLine.Substring(0, commentStartIdx);
+
+                        // Parse the damn line.
+                        if (strLine != "")
+                        {
+                            string[] keyPair = strLine.Split(new[] {'='}, 2);
+                            string settingName = keyPair[0].Trim();
+                            string desc = fileName + ":" + lineNumber + " '" + strLine + "'";
+
+                            Setting set;
+                            if (_multiFields)
+                            {
+                                var values = new string[0];
+                                if (keyPair.Length > 1)
+                                    values = keyPair[1].Trim().Split(new[] {','});
+
+                                var settingValues = new object[values.Length];
+                                for (int i = 0; i < values.Length; i++)
+                                    settingValues[i] = values[i].Trim();
+
+                                set = new Setting(sec.SectionName, settingName, desc, settingValues, strLine);
+                            }
+                            else
+                            {
+                                var settingValues = new object[0];
+                                if (keyPair.Length > 1)
+                                    settingValues = new object[] {keyPair[1].Trim()};
+                                set = new Setting(sec.SectionName, settingName, desc, settingValues, strLine);
+                            }
+                            sec.Settings.Add(set);
+                        }
+                    }
+                }
+
+                strLine = sr.ReadLine();
+                lineNumber++;
+            }
+            sr.Close();
+        }
+
+        /// <summary>
+        ///     Returns true if the section exists
+        /// </summary>
+        /// <param name="sectionName">Section name.</param>
+        public bool SectionExists(string sectionName)
+        {
+            return Sections.Any(sec => sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant());
+        }
+
+        /// <summary>
+        ///     Returns true if the section/setting exists
+        /// </summary>
+        /// <param name="sectionName">Section name.</param>
+        /// <param name="settingName">Key name.</param>
+        public bool SettingExists(string sectionName, string settingName)
+        {
+            return (from sec in Sections where sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant() select sec.SettingExists(settingName)).FirstOrDefault();
+        }
+
+        /// <summary>
+        ///     Returns the value array for the given section/key pair.
+        /// </summary>
+        /// <param name="sectionName">Section name.</param>
+        /// <param name="settingName">Key name.</param>
+        public Setting GetSetting(string sectionName, string settingName)
+        {
+            foreach (Section sec in Sections)
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                    return sec.GetSetting(settingName);
+
+            throw new FLDataFileException("section " + sectionName + " not found in " + Path.GetFileName(FilePath));
+        }
+
+        /// <summary>
+        ///     Adds or replaces a setting to the table to be saved. If the new setting value is
+        ///     different to the current setting value or the key doesn't exist then return true
+        ///     to indicate that the settings should be saved. Otherwise return false to indicate
+        ///     that the ini file contents have not changed.
+        /// </summary>
+        /// <param name="sectionName">Section to add under.</param>
+        /// <param name="settingName">Key name to add.</param>
+        /// <param name="settingValues">Value of key.</param>
+        public bool AddSetting(string sectionName, string settingName, object[] settingValues)
+        {
+            foreach (Section sec in Sections)
+            {
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                {
+                    // Find the setting in this section
+                    foreach (Setting set in sec.Settings)
+                    {
+                        if (set.SettingName.ToLowerInvariant() == settingName.ToLowerInvariant())
+                        {
+                            set.Values = settingValues;
+                            return true;
+                        }
+                    }
+
+                    // Not found so add a new entry to this section.
+                    sec.Settings.Add(new Setting(sec.SectionName, settingName, "unknown", settingValues, ""));
+                    return true;
+                }
+            }
+
+            // The entry section wasn't found, add a new section.
+            var ns = new Section("") {SectionName = sectionName};
+            ns.Settings.Add(new Setting(sectionName, settingName, "unknown", settingValues, ""));
+            Sections.Add(ns);
+            return true;
+        }
+
+
+        /// <summary>
+        ///     Adds a setting to the table to be saved. Does not check for uniqueness so that
+        ///     multiple entries with the same keys are allowed.
+        /// </summary>
+        /// <param name="sectionName">Section to add under.</param>
+        /// <param name="settingName">Key name to add.</param>
+        /// <param name="settingValues">Value of key.</param>
+        public void AddSettingNotUnique(string sectionName, string settingName, object[] settingValues)
+        {
+            // If the section exists add this entry to the existing section
+            foreach (Section sec in Sections)
+            {
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                {
+                    sec.Settings.Add(new Setting(sec.SectionName, settingName, "unknown", settingValues, ""));
+                    return;
+                }
+            }
+
+            // The section wasn't found, add a new section.
+            var ns = new Section("") {SectionName = sectionName};
+            ns.Settings.Add(new Setting(sectionName, settingName, "unknown", settingValues, ""));
+            Sections.Add(ns);
+        }
+
+        /// <summary>
+        ///     Remove one or more settings from a section.
+        /// </summary>
+        /// <param name="sectionName">Section to delete from.</param>
+        /// <param name="settingName">Key name to delete.</param>
+        /// <returns>Return true if a setting was deleted</returns>
+        public bool DeleteSetting(string sectionName, string settingName)
+        {
+            bool removed = false;
+            foreach (Section sec in Sections)
+            {
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                {
+                    var remove = sec.Settings.Where(set => set.SettingName.ToLowerInvariant() == settingName.ToLowerInvariant()).ToList();
+
+                    foreach (var set in remove)
+                        sec.Settings.Remove(set);
+
+                    if (remove.Count > 0)
+                        removed = true;
+                }
+            }
+
+            return removed;
+        }
+
+        /// <summary>
+        ///     Delete a setting by reference. This is useful if you have multiple
+        ///     settings with the same name.
+        /// </summary>
+        /// <param name="setting">The setting to delete.</param>
+        /// <returns>Return true if the setting was deleted, otherwise false.</returns>
+        public bool DeleteSetting(Setting setting)
+        {
+            foreach (Section sec in Sections)
+            {
+                foreach (Setting set in sec.Settings)
+                {
+                    if (set == setting)
+                    {
+                        sec.Settings.Remove(set);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        ///     Remove a section.
+        /// </summary>
+        /// <param name="sectionName">
+        ///     Section to delete
+        ///     </param>
+        ///         <returns>Return true if a section was deleted</returns>
+        public bool DeleteSection(string sectionName)
+        {
+            foreach (Section sec in Sections)
+            {
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                {
+                    Sections.Remove(sec);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        ///     Return a list of all items with the specified section name and setting name
+        /// </summary>
+        /// <param name="sectionName">The section name.</param>
+        /// <param name="settingName">The setting name.</param>
+        /// <returns></returns>
+        public List<Setting> GetSettings(string sectionName, string settingName)
+        {
+            var result = new List<Setting>();
+            foreach (Section sec in Sections)
+            {
+                if (sec.SectionName.ToLowerInvariant() == sectionName.ToLowerInvariant())
+                {
+                    foreach (Setting set in sec.Settings)
+                    {
+                        if (settingName == null)
+                        {
+                            result.Add(set);
+                        }
+                        else if (set.SettingName.ToLowerInvariant() == settingName.ToLowerInvariant())
+                        {
+                            result.Add(set);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        ///     Return a list of all items with the specified section name
+        /// </summary>
+        /// <param name="sectionName">The section name.</param>
+        /// <returns></returns>
+        public List<Setting> GetSettings(string sectionName)
+        {
+            var result = new List<Setting>();
+            foreach (var sec in Sections.Where(sec => String.Equals(sec.SectionName, sectionName, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.AddRange(sec.Settings);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns resulting file contents.
+        /// </summary>
+        /// <returns></returns>
+        private string GetFile()
+        {
+            // Build the ini file in a string, section by section
+            var strToSave = new StringBuilder();
+            foreach (Section sec in Sections)
+            {
+                strToSave.AppendLine("[" + sec.SectionName + "]");
+
+                foreach (Setting setting in sec.Settings)
+                {
+                    string line = setting.SettingName;
+                    if (setting.Values.Length > 0)
+                    {
+                        line += " = ";
+                        for (int i = 0; i < setting.Values.Length; i++)
+                        {
+                            if (i != 0)
+                                line += ", ";
+                            if (setting.Values[i] is float)
+                                line += Convert.ToString((float)setting.Values[i], NumberFormatInfo.InvariantInfo);
+                            else if (setting.Values[i] is uint)
+                                line += Convert.ToString((uint)setting.Values[i], NumberFormatInfo.InvariantInfo);
+                            else if (setting.Values[i] is int)
+                                line += Convert.ToString((int)setting.Values[i], NumberFormatInfo.InvariantInfo);
+                            else
+                                line += setting.Values[i];
+                        }
+                    }
+                    strToSave.AppendLine(line);
+                }
+                strToSave.AppendLine("");
+            }
+
+            return strToSave.ToString();
+        }
+
+        /// <summary>
+        ///     Save settings to the file. Note that this doesn't support bini save
+        ///     but will encrypt the file if requested.
+        /// </summary>
+        /// <param name="filePath">The path to save the file too.</param>
+        /// <param name="encrypt">If true then encrypt the file.</param>
+        public void SaveSettings(string filePath, bool encrypt)
+        {
+            // Encrypt the ini file if necessary
+            byte[] buf = new ASCIIEncoding().GetBytes(GetFile());
+            if (encrypt)
+            {
+                var nBuf = new byte[buf.Length + 4];
+                nBuf[0] = (byte) 'F';
+                nBuf[1] = (byte) 'L';
+                nBuf[2] = (byte) 'S';
+                nBuf[3] = (byte) '1';
+                for (int i = 0; i < buf.Length; i++)
+                {
+                    int k = (Gene[i%4] + i)%256;
+                    nBuf[i + 4] = (byte) (buf[i] ^ (k | 0x80));
+                }
+                buf = nBuf;
+            }
+
+            // Write it back to the original location
+            using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+                fs.Write(buf, 0, buf.Length);
+                fs.Close();
+            }
+        }
+
+        /// <summary>
+        ///     Returns the ini file contents as a string.
+        /// </summary>
+        public string GetIniFileContents()
+        {
+            return _contents;
+        }
+
+        public class Section
+        {
+            public string Desc;
+
+            public string SectionName = "";
+
+            public List<Setting> Settings = new List<Setting>();
+
+            public Section(string desc)
+            {
+                Desc = desc;
+            }
+
+            /// <summary>
+            ///     Returns the first value for the specified setting in this section.
+            /// </summary>
+            /// <param name="settingName">Key name.</param>
+            public Setting GetSetting(string settingName)
+            {
+                foreach (var set in Settings)
+                    if (set.SettingName.ToLowerInvariant() == settingName.ToLowerInvariant())
+                        return set;
+
+                throw new FLDataFileException("setting " + settingName + " not found in section " + SectionName + " " +
+                                              Desc);
+            }
+
+            /// <summary>
+            ///     Returns true if the setting exists
+            /// </summary>
+            /// <param name="settingName">Key name.</param>
+            public bool SettingExists(string settingName)
+            {
+                return Settings.Any(set => String.Equals(set.SettingName, settingName, StringComparison.InvariantCultureIgnoreCase));
+            }
+        };
+
+        public class Setting
+        {
+            private readonly string _desc = "";
+            private readonly string _line = "";
+            private readonly string _sectionName = "";
+            private readonly string _settingName = "";
+            private object[] _values = new object[0];
+
+            public Setting(string sectionName, string settingName, string desc, object[] values, string line)
+            {
+                _sectionName = sectionName;
+                _settingName = settingName;
+                _desc = desc;
+                _values = values;
+                _line = line;
+            }
+
+            public string Desc
+            {
+                get { return _desc; }
+            }
+
+            public string SectionName
+            {
+                get { return _sectionName; }
+            }
+
+            public string SettingName
+            {
+                get { return _settingName; }
+            }
+
+            public object[] Values
+            {
+                get { return _values; }
+                set { _values = value; }
+            }
+
+            public string Line
+            {
+                get { return _line; }
+            }
+
+            public uint UInt(int index)
+            {
+                try
+                {
+                    return Convert.ToUInt32(Values[index]);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(String.Format("invalid int format on line '{0}' field {1}", _desc, index), e);
+                }
+            }
+
+            public float Float(int index)
+            {
+                try
+                {
+                    return Convert.ToSingle(Values[index], NumberFormatInfo.InvariantInfo);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(String.Format("invalid float format on line '{0}' field {1}", _desc, index), e);
+                }
+            }
+
+            public Vector Vector()
+            {
+                try
+                {
+                    return new Vector(Float(0), Float(1), Float(2));
+                }
+                catch (Exception)
+                {
+                    throw new FLDataFileException("setting " + SettingName + " not found in section " + SectionName +
+                                                  " " + Desc);
+                }
+            }
+
+            public string Str(int index)
+            {
+                return Convert.ToString(Values[index]);
+            }
+
+            public string UniStr(int index)
+            {
+                return FLUtility.DecodeUnicodeHex(Convert.ToString(Values[index]));
+            }
+
+            public int NumValues()
+            {
+                return Values.Length;
+            }
+        };
+    }
+}

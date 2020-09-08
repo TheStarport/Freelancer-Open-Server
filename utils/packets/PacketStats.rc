@@ -1,0 +1,35 @@
+/*
+  PacketStats.rc - Version resource for PACKETSTATS.DLL.
+
+  Jason Hood, 23 October, 2010.
+*/
+
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION	1,0,0,0
+PRODUCTVERSION	1,0,0,0
+FILEOS		VOS__WINDOWS32
+FILETYPE	VFT_APP
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904B0"
+    {
+      VALUE "Comments",         "http://freelancer.adoxa.cjb.net/"
+      VALUE "CompanyName",      "Jason Hood"
+      VALUE "FileDescription",  "PacketStats"
+      VALUE "FileVersion",      "1.00"
+      VALUE "InternalName",     "PacketStats"
+      VALUE "LegalCopyright",   "Copyright 2010 Jason Hood"
+      VALUE "OriginalFilename", "PacketStats.exe"
+      VALUE "ProductName",      "Freelancer"
+      VALUE "ProductVersion",   "1, 0, 0, 0"
+    }
+  }
+
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x0409, 0x04B0
+  }
+}

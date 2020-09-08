@@ -1,0 +1,4 @@
+apt-get install iftop mono-complete
+
+cp flproxy.conf /etc/init/flproxy.conf
+echo "flproxy ready"

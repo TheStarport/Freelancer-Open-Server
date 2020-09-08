@@ -1,0 +1,19 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="src/Objects/Ship.cs">
+    <Files>
+      <File FileName="src/Actors/Init.cs" Line="28" Column="13" />
+      <File FileName="src/Actors/Server/Server.cs" Line="1" Column="1" />
+      <File FileName="src/Actors/Player/State/InBaseState.cs" Line="18" Column="76" />
+      <File FileName="src/Old/CharacterDB/CharacterData.cs" Line="8" Column="1" />
+      <File FileName="src/Objects/Ship.cs" Line="43" Column="24" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <DisabledProjects>
+    <String>../physics/Jitter/Jitter.csproj</String>
+  </DisabledProjects>
+</Properties>
